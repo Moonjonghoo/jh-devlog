@@ -5,25 +5,34 @@ import matter from "gray-matter";
 import readingTime from "reading-time";
 import { sync } from "glob";
 
-const BASE_PATH = "/src/posts";
+const BASE_PATH = "src/posts";
 const POSTS_PATH = path.join(process.cwd(), BASE_PATH);
 
 export const getPostPaths = (category?: string) => {
   const folder = category || "**";
   const paths: string[] = sync(`${POSTS_PATH}/${folder}/**/*.mdx`);
-  return paths;
+  return paths.map((p) => p.split(path.sep).join(path.posix.sep));
 };
 
 // 모든 포스트 목록 조회
 export const getPostList = async (category?: string) => {
   const paths: string[] = getPostPaths(category);
-  const posts = await Promise.all(paths.map((postPath) => parsePost(postPath)));
+
+  const posts = await Promise.all(
+    paths.map((postPath) => {
+      return parsePost(postPath);
+    })
+  );
+  console.log(posts);
+
   return posts;
 };
 
 // MDX 파일 파싱 : abstract / detail 구분
 const parsePost = async (postPath: string) => {
   const postAbstract = parsePostAbstract(postPath);
+  console.log(postAbstract);
+
   const postDetail = await parsePostDetail(postPath);
   return { ...postAbstract, ...postDetail };
 };
@@ -32,6 +41,8 @@ const parsePost = async (postPath: string) => {
 // url, cg path, cg name, slug
 export const parsePostAbstract = (postPath: string) => {
   // category1/title1/content
+  // console.log(postPath.slice(9));
+
   const filePath = postPath.slice(postPath.indexOf(BASE_PATH)).replace(`${BASE_PATH}/`, "").replace(".mdx", "");
 
   // category1, title1

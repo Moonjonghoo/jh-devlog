@@ -7,9 +7,11 @@ export default async function PostListPage() {
 
   return (
     <section>
-      {postList.map((post) => {
-        return <PostCard postdata={post} key={post.title} />;
-      })}
+      <ul className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:gap-12">
+        {postList.map((post) => {
+          return <PostCard postdata={post} key={post.title} />;
+        })}
+      </ul>
     </section>
   );
 }
